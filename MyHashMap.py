@@ -145,7 +145,7 @@ class MyHashMap():
         v_list = list()
         for entry in self.entrySet():
             v_list.append(entry.getValue())
-        return list
+        return v_list
 
     def __call__(self):
         return self.__init__()
