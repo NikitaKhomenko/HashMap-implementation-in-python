@@ -6,10 +6,10 @@ def main():
 
     map1 = MyHashMap()
 
-    map1.put(1, 'nikita')
-    map1.put(2, 'shimon')
-    map1.put(3, 'linoy')
-    map1.put(4, 'moshe')
+    map1.Put(1953, 'Subaru')
+    map1.Put(1970, 'Mitsubishi')
+    map1.Put(1899, 'Fiat')
+    map1.Put(1916, 'BMW')
 
     print('Map 1:\n')
     map1.__str__()
@@ -17,7 +17,7 @@ def main():
     map2 = MyHashMap()
 
     print('Copping map 1 to map 2:\n')
-    map2.putAll(map1)
+    map2.PutAll(map1)
 
     print('Map 2:\n')
     map2.__str__()
