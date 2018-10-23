@@ -1,12 +1,15 @@
-class MyHashMap():
+
+DEFAULT_MAXIMUM_LOAD_FACTOR = 0.75
+MAXIMUM_CAPACITY = 1 << 30
+
+
+class MyHashMap(object):
     DEFAULT_INITIAL_CAPACITY = 4
-    DEFAULT_MAXIMUM_LOAD_FACTOR = 0.75
-    MAXIMUM_CAPACITY = 1 << 30
 
     def __init__(self, capacity=DEFAULT_INITIAL_CAPACITY, loadFactor=DEFAULT_MAXIMUM_LOAD_FACTOR):
 
-        if capacity > self.MAXIMUM_CAPACITY:
-            self.capacity = self.MAXIMUM_CAPACITY
+        if capacity > MAXIMUM_CAPACITY:
+            self.capacity = MAXIMUM_CAPACITY
 
         else:
             self.capacity = self.trimToPowerOf2(capacity)
@@ -32,12 +35,6 @@ class MyHashMap():
             def __str__(self):
                 return "(" + self.key + ": " + str(self.val) + ")"
 
-    def hashCode(self, data):
-        h = 0
-        for c in data:
-            h = (31 * h + ord(c)) & 0xFFFFFFFF
-        return ((h + 0x80000000) & 0xFFFFFFFF) - 0x80000000
-
     def trimToPowerOf2(self, initialCapacity):  # trims the capacity to power of 2
         capacity = 1
         while capacity < initialCapacity:
@@ -45,12 +42,11 @@ class MyHashMap():
 
         return capacity
 
-    def hashIt(self, hashCode):
-        return self.supplyHashCode(hashCode) & (self.capacity - 1)
-
-    def supplyHashCode(self, h):
-        h ^= (h >> 20) ^ (h >> 12)
-        return h ^ (h >> 7) ^ (h >> 4)
+    def hashIt(self, key):
+        hash = 0
+        for char in str(key):
+            hash += ord(char)
+        return hash % self.capacity
 
     def clear(self):
         self.size = 0
@@ -82,7 +78,7 @@ class MyHashMap():
             return oldValue
 
         if (self.size + 1 >= self.capacity * self.thresholdLoadFactor) | (self.get(key) is not None):  # if need rehash
-            if self.capacity == self.MAXIMUM_CAPACITY:
+            if self.capacity == MAXIMUM_CAPACITY:
                 RuntimeError("Exceeding maximum capacity")
             self.rehash()
 
@@ -110,7 +106,8 @@ class MyHashMap():
         if key is not None:
             index = self.hashIt(key)
             if self.table is not None:
-                return self.table[index].getValue()
+                if self.table[index] is not None:
+                    return self.table[index].getValue()
         return None
 
     def isEmpty(self):  # returning if the map contains values or not
@@ -147,28 +144,7 @@ class MyHashMap():
             v_list.append(entry.getValue())
         return v_list
 
-    def __call__(self):
-        return self.__init__()
-
     def __str__(self):
         return str(self.table)
 
 
-def main():
-    print('hello')
-
-    map1 = MyHashMap(16)
-
-    map1.put(1, 'nikita')
-    map1.put(2, 'shimon')
-    map1.put(3, 'linoy')
-    map1.put(4, 'moshe')
-
-    map2 = MyHashMap()
-
-    map2.putAll(map1)
-    print('hello')
-    map2.__str__()
-
-
-main()
