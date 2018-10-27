@@ -24,6 +24,8 @@ def main():
     print('Copping map 1 to map 2:\n')
     map2.map_copy(map1)
 
+    old_val = map2.put(1899, 'Toyota')
+
     print('Map 2:\n')
     print(map2)
 

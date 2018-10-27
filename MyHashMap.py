@@ -1,6 +1,7 @@
 from Entry import Entry
 
 DEFAULT_MAXIMUM_LOAD_FACTOR = 0.75
+DEFAULT_MAXIMUM_UNLOAD_FACTOR = 0.25
 MAXIMUM_CAPACITY = 1 << 30
 
 
@@ -15,7 +16,8 @@ class MyHashMap(object):
         else:
             self.capacity = self.trim_power_of2(capacity)
 
-        self.thresholdLoadFactor = loadFactor
+        self.thresholdLoadFactor = DEFAULT_MAXIMUM_UNLOAD_FACTOR
+        self.thresholdUnoadFactor = 0.
         self.size = 0
         self.table = [None] * capacity
 
@@ -50,7 +52,7 @@ class MyHashMap(object):
     def contains_value(self, value):
         for entry in self.table:
             if entry is not None:
-                if entry.getValue().equals(value):
+                if entry.get_val() == value:
                     return True
         return False
 
@@ -65,9 +67,9 @@ class MyHashMap(object):
     def put(self, key, value):  # adding an element to the map by specified key
         index = self.hash_code(key)
         if (self.get(key) is not None) & (self.table[index] is not None):  # if the key already exists
-            if self.table[index].get_key == key:
-                oldValue = self.table[index].getValue()
-                self.table[index].setValue(value)
+            if self.table[index].key == key:
+                oldValue = self.table[index].get_val()
+                self.table[index].set_val(value)
                 return oldValue
 
         if (self.size + 1 >= self.capacity * self.thresholdLoadFactor) | (self.get(key) is not None):  # if need rehash
@@ -81,10 +83,16 @@ class MyHashMap(object):
         return None
 
     def resize(self):
-        new_capacity = self.capacity * 2
-        self.thresholdLoadFactor = new_capacity * 0.75
+        if self.size / self.capacity > self.thresholdLoadFactor:
+            self.capacity = self.capacity * 2
+            self.thresholdLoadFactor = self.capacity * 0.75
+
+        if self.size / self.capacity < self.thresholdUnoadFactor:
+            self.capacity = self.capacity / 2
+            self.thresholdLoadFactor = self.capacity * 0.75
+
         old_table = self.table
-        self.table = [None] * new_capacity
+        self.table = [None] * self.capacity
         for entry in old_table:
             if entry is not None:
                 self.put(entry.get_key(), entry.get_val())
@@ -116,15 +124,16 @@ class MyHashMap(object):
             return None
 
         index = self.hash_code(key)
-        oldValue = self.table[index].getValue()
+        oldValue = self.table[index].get_val()
         self.table[index] = None
         self.size -= 1
+
+        if self.size + 1 <= self.capacity * self.thresholdUnoadFactor:
+            self.resize()
+
         return oldValue
 
-    def get_size(self):  # return size of the map
-        return self.size
-
-    def values(self):  # return a set consisting of the values in the map
+    def value_set(self):  # return a set consisting of the values in the map
         v_list = list()
         for entry in self.entry_set():
             v_list.append(entry.get_val())
