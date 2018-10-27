@@ -1,4 +1,5 @@
 from Entry import Entry
+from LinkedList import EntryLinkedList, EntryNode
 
 DEFAULT_MAXIMUM_LOAD_FACTOR = 0.75
 DEFAULT_MAXIMUM_UNLOAD_FACTOR = 0.25
@@ -19,7 +20,7 @@ class MyHashMap(object):
         self.thresholdLoadFactor = DEFAULT_MAXIMUM_UNLOAD_FACTOR
         self.thresholdUnoadFactor = 0.
         self.size = 0
-        self.table = [None] * capacity
+        self.table = [EntryLinkedList()] * capacity
 
     def trim_power_of2(self, initial_capacity):  # trims the capacity to power of 2
         capacity = 1
@@ -45,57 +46,71 @@ class MyHashMap(object):
 
     def contains_key(self, key):
         index = self.hash_code(key)
-        if (self.table[index] is not None) & (self.table[index].get_key().equals(key)):
+        if self.table[index].head is not None:
             return True
         return False
 
     def contains_value(self, value):
         for entry in self.table:
             if entry is not None:
-                if entry.get_val() == value:
-                    return True
+                    last_entry = self.table[index].head
+                    while last_entry is not None:
+                        last_entry = last_entry.next
+                        if last_entry.get_val() == value:
+                            return True
         return False
 
     def get(self, key):  # returning an element by specified key
         if key is not None:
             index = self.hash_code(key)
             if self.table is not None:
-                if self.table[index] is not None:
-                    return self.table[index]
+                if self.table[index].head is not None:
+                    last_entry = self.table[index].head
+                    while last_entry is not None:
+                        last_entry = last_entry.next
+                        if last_entry.key == key:
+                            return last_entry
         return None
 
     def put(self, key, value):  # adding an element to the map by specified key
         index = self.hash_code(key)
-        if (self.get(key) is not None) & (self.table[index] is not None):  # if the key already exists
-            if self.table[index].key == key:
-                oldValue = self.table[index].get_val()
-                self.table[index].set_val(value)
-                return oldValue
+        if (self.get(key) is not None) & (self.table[index].head is not None):  # if the key already exists
+            last_entry = self.table[index].head
+            while last_entry is not None:
+                last_entry = last_entry.next
+                if last_entry.key == key:
+                    oldValue = last_entry.get_val()
+                    last_entry.set_val(value)
+                    return oldValue
 
         if (self.size + 1 >= self.capacity * self.thresholdLoadFactor) | (self.get(key) is not None):  # if need rehash
             if self.capacity == MAXIMUM_CAPACITY:
                 RuntimeError("Exceeding maximum capacity")
-            self.resize()
+            # self.resize()
 
+   #  if index is taken we make a linked list
         new_index = self.hash_code(key)
-        self.table[new_index] = Entry(key, value)
+        last_entry = self.table[new_index].head
+        while last_entry is not None:
+            last_entry = last_entry.next
+        last_entry = EntryNode(Entry(key, value))
         self.size = + 1
         return None
 
-    def resize(self):
-        if self.size / self.capacity > self.thresholdLoadFactor:
-            self.capacity = self.capacity * 2
-            self.thresholdLoadFactor = self.capacity * 0.75
-
-        if self.size / self.capacity < self.thresholdUnoadFactor:
-            self.capacity = self.capacity / 2
-            self.thresholdLoadFactor = self.capacity * 0.75
-
-        old_table = self.table
-        self.table = [None] * self.capacity
-        for entry in old_table:
-            if entry is not None:
-                self.put(entry.get_key(), entry.get_val())
+    # def resize(self):
+    #     if self.size / self.capacity > self.thresholdLoadFactor:
+    #         self.capacity = self.capacity * 2
+    #         self.thresholdLoadFactor = self.capacity * 0.75
+    #
+    #     if self.size / self.capacity < self.thresholdUnoadFactor:
+    #         self.capacity = self.capacity / 2
+    #         self.thresholdLoadFactor = self.capacity * 0.75
+    #
+    #     old_table = self.table
+    #     self.table = [None] * self.capacity
+    #     for entry in old_table:
+    #         if entry is not None:
+    #             self.put(entry.get_key(), entry.get_val())
 
     def entry_set(self):  # return set of the entries(BandEntries) in the map
         h_set = set()
@@ -113,11 +128,11 @@ class MyHashMap(object):
             k_set.add(entry.get_key())
         return k_set
 
-    def map_copy(self, map):  # adding a full map to this map
-        m_set = map.entry_set()
-
-        for entry in m_set:
-            self.put(entry.get_key(), entry.get_val())
+    # def map_copy(self, map):  # adding a full map to this map
+    #     m_set = map.entry_set()
+    #
+    #     for entry in m_set:
+    #         self.put(entry.get_key(), entry.get_val())
 
     def remove(self, key):  # removing element by specified key
         if self.get(key) is None:
