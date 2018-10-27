@@ -1,3 +1,4 @@
+from Entry import Entry
 
 DEFAULT_MAXIMUM_LOAD_FACTOR = 0.75
 MAXIMUM_CAPACITY = 1 << 30
@@ -12,139 +13,128 @@ class MyHashMap(object):
             self.capacity = MAXIMUM_CAPACITY
 
         else:
-            self.capacity = self.TrimToPowerOf2(capacity)
+            self.capacity = self.trim_power_of2(capacity)
 
         self.thresholdLoadFactor = loadFactor
         self.size = 0
         self.table = [None] * capacity
 
-    class Entry:
-        def __init__(self, key, val):
-            self.key = key
-            self.val = val
-
-            def get_key(self):
-                return self.key
-
-            def get_val(self):
-                return self.val
-
-            def set_val(self, val):
-                self.val = val
-
-            def __str__(self):
-                return "(" + self.key + ": " + str(self.val) + ")"
-
-    def TrimToPowerOf2(self, initialCapacity):  # trims the capacity to power of 2
+    def trim_power_of2(self, initial_capacity):  # trims the capacity to power of 2
         capacity = 1
-        while capacity < initialCapacity:
+        while capacity < initial_capacity:
             capacity <<= 1
 
         return capacity
 
-    def HashIt(self, key):
+    def hash_code(self, key):
         hash = 0
         for char in str(key):
             hash += ord(char)
         return hash % self.capacity
 
-    def Clear(self):
+    def clear(self):
         self.size = 0
-        self.RemoveEntries()
+        self.remove_entries()
 
-    def RemoveEntries(self):
+    def remove_entries(self):
         for entry in self.table:
             if entry is not None:
                 entry = None
 
-    def ContainsKey(self, key):
-        index = self.HashIt(key)
-        if (self.table[index] is not None) & (self.table[index].getKey().equals(key)):
+    def contains_key(self, key):
+        index = self.hash_code(key)
+        if (self.table[index] is not None) & (self.table[index].get_key().equals(key)):
             return True
         return False
 
-    def ContainsValue(self, value):
+    def contains_value(self, value):
         for entry in self.table:
             if entry is not None:
                 if entry.getValue().equals(value):
                     return True
         return False
 
-    def Put(self, key, value):  # adding an element to the map by specified key
-        index = self.HashIt(key)
-        if (self.Get(key) is not None) & (self.table[index].getKey().equals(key)):  # if the key already exists
-            oldValue = self.table[index].getValue()
-            self.table[index].setValue(value)
-            return oldValue
+    def get(self, key):  # returning an element by specified key
+        if key is not None:
+            index = self.hash_code(key)
+            if self.table is not None:
+                if self.table[index] is not None:
+                    return self.table[index]
+        return None
 
-        if (self.size + 1 >= self.capacity * self.thresholdLoadFactor) | (self.Get(key) is not None):  # if need rehash
+    def put(self, key, value):  # adding an element to the map by specified key
+        index = self.hash_code(key)
+        if (self.get(key) is not None) & (self.table[index] is not None):  # if the key already exists
+            if self.table[index].get_key == key:
+                oldValue = self.table[index].getValue()
+                self.table[index].setValue(value)
+                return oldValue
+
+        if (self.size + 1 >= self.capacity * self.thresholdLoadFactor) | (self.get(key) is not None):  # if need rehash
             if self.capacity == MAXIMUM_CAPACITY:
                 RuntimeError("Exceeding maximum capacity")
-            self.Rehash()
+            self.resize()
 
-        newIndex = self.HashIt(key)
-        self.table[newIndex] = self.Entry(key, value)
+        new_index = self.hash_code(key)
+        self.table[new_index] = Entry(key, value)
         self.size = + 1
         return None
 
-    def Rehash(self):  # the rehash function
-        h_set = self.EntrySet()
-        self.capacity <<= 1
-        self.table = self.Entry[self.capacity]
-        self.size = 0
-        for entry in h_set:
-            self.Put(entry.getKey(), entry.getValue())
+    def resize(self):
+        new_capacity = self.capacity * 2
+        self.thresholdLoadFactor = new_capacity * 0.75
+        old_table = self.table
+        self.table = [None] * new_capacity
+        for entry in old_table:
+            if entry is not None:
+                self.put(entry.get_key(), entry.get_val())
 
-    def EntrySet(self):  # return set of the entries(BandEntries) in the map
+    def entry_set(self):  # return set of the entries(BandEntries) in the map
         h_set = set()
         for entry in self.table:
             if entry is not None:
                 h_set.add(entry)
         return h_set
 
-    def Get(self, key):  # returning an element by specified key
-        if key is not None:
-            index = self.HashIt(key)
-            if self.table is not None:
-                if self.table[index] is not None:
-                    return self.table[index].getValue()
-        return None
-
-    def IsEmpty(self):  # returning if the map contains values or not
+    def is_empty(self):  # returning if the map contains values or not
         return self.size == 0
 
-    def KeySet(self):  # returning a set of the keys in this map
+    def key_set(self):  # returning a set of the keys in this map
         k_set = set()
-        for entry in self.EntrySet():
-            k_set.add(entry.getKey())
+        for entry in self.entry_set():
+            k_set.add(entry.get_key())
         return k_set
 
-    def PutAll(self, map):  # adding a full map to this map
-        m_set = map.EntrySet()
+    def map_copy(self, map):  # adding a full map to this map
+        m_set = map.entry_set()
 
-        for self.entry in m_set:
-            self.Put(self.entry.getKey(), self.entry.getValue())
+        for entry in m_set:
+            self.put(entry.get_key(), entry.get_val())
 
-    def Remove(self, key):  # removing element by specified key
-        if self.Get(key) is None:
+    def remove(self, key):  # removing element by specified key
+        if self.get(key) is None:
             return None
 
-        index = self.HashIt(key)
+        index = self.hash_code(key)
         oldValue = self.table[index].getValue()
         self.table[index] = None
         self.size -= 1
         return oldValue
 
-    def Size(self):  # retutn size of the map
+    def get_size(self):  # return size of the map
         return self.size
 
-    def Values(self):  # return a set consisting of the values in the map
+    def values(self):  # return a set consisting of the values in the map
         v_list = list()
-        for entry in self.EntrySet():
-            v_list.append(entry.getValue())
+        for entry in self.entry_set():
+            v_list.append(entry.get_val())
         return v_list
 
     def __str__(self):
-        return str(self.table)
+        return str([str(entry) for entry in self.table if entry is not None])
+
+    def generator(self):
+        for index in range(-1, len(self.table) - 1, 1):
+            yield self.table[index]
 
 
