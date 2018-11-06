@@ -8,7 +8,7 @@ map1.put(1899, 'Fiat')
 map1.put(1916, 'BMW')
 
 map2 = MyHashMap()
-map2.map_copy(map1)
+# map2.map_copy(map1)
 
 entry = map1.get(1953)
 
@@ -16,10 +16,10 @@ entry = map1.get(1953)
 class TestHashCode(unittest.TestCase):
 
     def test_get(self):
-        self.assertIs(entry.get_val(), 'Subaru')
+        self.assertIs(entry.val, 'Subaru')
 
     def test_hash_code(self):
-        self.assertEqual(map1.hash_code(entry.get_key()), 2)
+        self.assertEqual(map1.hash_code(entry.key), 2)
 
     def test_contains_value(self):
         self.assertTrue(map1.contains_value(entry.get_val()))

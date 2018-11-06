@@ -12,18 +12,19 @@ def main():
     map1.put(1899, 'Fiat')
     map1.put(1916, 'BMW')
 
+    set1 = map1.entry_set()
+    print(set1)
+
     print('Map 1:\n')
-    print(map1)
+    map1.print_map()
 
     map2 = MyHashMap()
 
     print('Copping map 1 to map 2:\n')
     # map2.map_copy(map1)
 
-    old_val = map2.put(1899, 'Toyota')
-
     print('Map 2:\n')
-    print(map2)
+    map2.print_map()
 
 
 main()
