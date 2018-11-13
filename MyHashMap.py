@@ -2,14 +2,20 @@ from Entry import Entry
 from LinkedList import SingleEntryLinkedList
 
 DEFAULT_MAXIMUM_LOAD_FACTOR = 0.75
-DEFAULT_MAXIMUM_UNLOAD_FACTOR = 0.25
+DEFAULT_MAXIMUM_UNLOAD_FACTOR = 0.1
 MAXIMUM_CAPACITY = 1 << 30
 
 
 class MyHashMap(object):
+
+    """
+    My implementation of a hash map
+    Author: Nikta Khomenko
+    """
+
     DEFAULT_INITIAL_CAPACITY = 4
 
-    def __init__(self, capacity=DEFAULT_INITIAL_CAPACITY, loadFactor=DEFAULT_MAXIMUM_LOAD_FACTOR):
+    def __init__(self, capacity=DEFAULT_INITIAL_CAPACITY, load_factor=DEFAULT_MAXIMUM_LOAD_FACTOR):
 
         if capacity > MAXIMUM_CAPACITY:
             self.capacity = MAXIMUM_CAPACITY
@@ -17,8 +23,8 @@ class MyHashMap(object):
         else:
             self.capacity = self.trim_power_of2(capacity)
 
-        self.thresholdLoadFactor = DEFAULT_MAXIMUM_UNLOAD_FACTOR
-        self.thresholdUnloadFactor = 0.25
+        self.thresholdLoadFactor = load_factor
+        self.thresholdUnloadFactor = DEFAULT_MAXIMUM_UNLOAD_FACTOR
         self.size = 0
         self.table = [SingleEntryLinkedList() for i in range(capacity)]
 
@@ -51,21 +57,23 @@ class MyHashMap(object):
     def contains_value(self, value):
         for entry_list in self.table:
             if entry_list.list_length != 0:
-                return entry_list.unordered_search_value(value)
+                if entry_list.unordered_search_value(value):
+                    return True
+        return False
 
     def get(self, key):  # returning an element by specified key
         if key is not None:
-            index = self.hash_code(key)
+            index = int(self.hash_code(key))
             if self.table is not None:
                 if self.table[index].list_length != 0:
                     return self.table[index].unordered_search_get_entry_by_key(key)
         return None
 
     def put(self, key, value):  # adding an element to the map by specified key
-        index = self.hash_code(key)
+        index = int(self.hash_code(key))
         if (self.get(key) is not None) & (self.table[index].list_length != 0):  # if the key already exists
-            if self.table[index].unordered_search_for_existence(Entry(key, value)):
-                self.table[index].add_list_item(Entry(key, value))
+            if self.table[index].unordered_search_key(key):
+                return self.table[index].override_list_item(Entry(key, value))
 
         #  if index is taken we make a linked list
         self.table[index].add_list_item(Entry(key, value))
@@ -84,7 +92,7 @@ class MyHashMap(object):
         for entry_list in self.table:
             current_node = entry_list.head
             while current_node is not None:
-                e_set.add(current_node)
+                e_set.add(current_node.data)
                 # jump to the linked node
                 current_node = current_node.next
         return e_set
@@ -117,21 +125,18 @@ class MyHashMap(object):
             k_set.add(entry.key)
         return k_set
 
-    # def map_copy(self, map_to_copy):  # adding a full map to this map
-    #     m_set = map_to_copy.entry_set()
-    #     for entry in m_set:
-    #         self.put(entry.key, entry.val)
+    def map_copy(self, map_to_copy):  # coping a full map to this map
+        m_set = map_to_copy.entry_set()
+        for entry in m_set:
+            self.put(entry.key, entry.val)
 
     def remove(self, key):  # removing element by specified key
-        if self.get(key) is None:
-            return None
-
         index = self.hash_code(key)
         last_entry = self.table[index].head
-        while last_entry.get_key != key:
+        while last_entry.data.key != key:
             last_entry = last_entry.next
-        old_value = last_entry.get_val()
-        last_entry = None
+        old_value = last_entry.data.val
+        last_entry.data = None
         self.size -= 1
 
         if self.size + 1 <= self.capacity * self.thresholdUnloadFactor:

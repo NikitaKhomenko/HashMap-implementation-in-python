@@ -1,5 +1,3 @@
-from Entry import Entry
-
 
 class ListEntryNode:
     def __init__(self, data):
@@ -24,6 +22,23 @@ class SingleEntryLinkedList:
 
         if self.head is None:
             self.head = item
+        else:
+            self.tail.next = item
+
+        self.tail = item
+
+        return
+
+    def override_list_item(self, item):
+        "add an item at the end of the list"
+
+        if not isinstance(item, ListEntryNode):
+            item = ListEntryNode(item)
+
+        if self.head.data.key == item.data.key:
+            old_value = self.head.data.val
+            self.head = item
+            return old_value
         else:
             self.tail.next = item
 
@@ -71,7 +86,7 @@ class SingleEntryLinkedList:
         result = False
 
         while current_node is not None:
-            if current_node == entry:
+            if current_node.data == entry:
                 result = True
 
             # jump to the linked node
@@ -80,7 +95,7 @@ class SingleEntryLinkedList:
 
         return result
 
-    def unordered_search_value(self, value):
+    def unordered_search_value(self, value_searched):
         "search the linked list for the node that has this value"
 
         # define current_node
@@ -92,7 +107,7 @@ class SingleEntryLinkedList:
         result = False
 
         while current_node is not None:
-            if current_node.value == value:
+            if current_node.data.val == value_searched:
                 result = True
 
             # jump to the linked node
@@ -101,7 +116,7 @@ class SingleEntryLinkedList:
 
         return result
 
-    def unordered_search_key(self, key):
+    def unordered_search_key(self, key_searched):
         "search the linked list for the node that has this value"
 
         # define current_node
@@ -113,7 +128,7 @@ class SingleEntryLinkedList:
         result = False
 
         while current_node is not None:
-            if current_node.key == key:
+            if current_node.data.key == key_searched:
                 result = True
 
             # jump to the linked node
@@ -132,9 +147,8 @@ class SingleEntryLinkedList:
         node_id = 1
 
         while current_node is not None:
-            if isinstance(current_node, Entry):
-                if current_node.key == key:
-                    return current_node
+            if current_node.data.key == key:
+                return current_node.data
 
             # jump to the linked node
             current_node = current_node.next
