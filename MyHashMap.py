@@ -9,7 +9,7 @@ MAXIMUM_CAPACITY = 1 << 30
 class MyHashMap(object):
 
     """
-    My implementation of a hash map
+    My hash map implementation 
     Author: Nikta Khomenko
     """
 
