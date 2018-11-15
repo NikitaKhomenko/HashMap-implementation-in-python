@@ -87,7 +87,7 @@ class MyHashMap(object):
 
         return None
 
-    def entry_set(self):  # return set of the entries(BandEntries) in the map
+    def entry_set(self):  # return set of the entries in the map
         e_set = set()
         for entry_list in self.table:
             current_node = entry_list.head
